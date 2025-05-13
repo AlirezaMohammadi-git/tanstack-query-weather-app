@@ -7,6 +7,9 @@ import { ThemeProvider } from "./context/theme-provider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { CityPage } from "./pages/city-page";
 
+//staleTime: time to refetch data (data is invalid after this time so we're refetching it)
+// gcTime: after 10 minutes, cached data will be removed and data will refetch.
+// refetchOnWindowFocus: does refetch data if you go to another tab and come back?
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

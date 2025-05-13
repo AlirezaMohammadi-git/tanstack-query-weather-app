@@ -106,9 +106,8 @@ export function WeatherDashboard() {
           disabled={weatherQuery.isFetching || forecastQuery.isFetching}
         >
           <RefreshCw
-            className={`h-4 w-4 ${
-              weatherQuery.isFetching ? "animate-spin" : ""
-            }`}
+            className={`h-4 w-4 ${weatherQuery.isFetching ? "animate-spin" : ""
+              }`}
           />
         </Button>
       </div>

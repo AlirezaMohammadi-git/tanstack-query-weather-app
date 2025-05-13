@@ -1,14 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
-  Tooltip,
   ResponsiveContainer,
+  Area,
+  AreaChart,
+  CartesianGrid,
 } from "recharts";
 import { format } from "date-fns";
 import type { ForecastData } from "@/api/types";
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
 
 interface HourlyTemperatureProps {
   data: ForecastData;
@@ -31,15 +32,32 @@ export function HourlyTemperature({ data }: HourlyTemperatureProps) {
       feels_like: Math.round(item.main.feels_like),
     }));
 
-  return (
-    <Card className="flex-1">
-      <CardHeader>
-        <CardTitle>Today's Temperature</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[200px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
+
+
+  const chartConfig = {
+    temp: {
+      label: "temp",
+      color: "#FFA500",
+    },
+    feels_like: {
+      label: "feels like",
+      color: "#0000FF",
+    },
+  } satisfies ChartConfig
+
+  const secondChart = <Card>
+    <CardHeader>
+      <CardTitle>Today's Temperature</CardTitle>
+    </CardHeader>
+    <CardContent>
+
+      <div className="h-[250px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer config={chartConfig}>
+            <AreaChart
+              data={chartData}
+            >
+              <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="time"
                 stroke="#888888"
@@ -54,54 +72,40 @@ export function HourlyTemperature({ data }: HourlyTemperatureProps) {
                 axisLine={false}
                 tickFormatter={(value) => `${value}°`}
               />
-              <Tooltip
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    return (
-                      <div className="rounded-lg border bg-background p-2 shadow-sm">
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex flex-col">
-                            <span className="text-[0.70rem] uppercase text-muted-foreground">
-                              Temperature
-                            </span>
-                            <span className="font-bold">
-                              {payload[0].value}°
-                            </span>
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-[0.70rem] uppercase text-muted-foreground">
-                              Feels Like
-                            </span>
-                            <span className="font-bold">
-                              {payload[1].value}°
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              <Line
-                type="monotone"
+              <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+              <defs>
+                <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#0000FF" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#0000FF" stopOpacity={0.1} />
+                </linearGradient>
+                <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#0000FF" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#0000FF" stopOpacity={0.1} />
+                </linearGradient>
+              </defs>
+              <Area
                 dataKey="temp"
-                stroke="#2563eb"
-                strokeWidth={2}
-                dot={false}
+                type="natural"
+                fill="url(#fillMobile)"
+                fillOpacity={0.4}
+                stroke="#0000FF"
+                stackId="a"
               />
-              <Line
-                type="monotone"
+              <Area
                 dataKey="feels_like"
-                stroke="#64748b"
-                strokeWidth={2}
-                dot={false}
-                strokeDasharray="5 5"
+                type="natural"
+                fill="url(#fillDesktop)"
+                fillOpacity={0.4}
+                stroke="#0000FF"
+                stackId="b"
               />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
-  );
+            </AreaChart>
+          </ChartContainer>
+        </ResponsiveContainer>
+      </div>
+
+    </CardContent>
+  </Card>
+
+  return secondChart;
 }

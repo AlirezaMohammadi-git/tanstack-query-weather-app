@@ -14,6 +14,7 @@ export function useGeolocation() {
     isLoading: true,
   });
 
+
   const getLocation = () => {
     setLocationData((prev) => ({ ...prev, isLoading: true, error: null }));
 
@@ -26,45 +27,46 @@ export function useGeolocation() {
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocationData({
-          coordinates: {
-            lat: position.coords.latitude,
-            lon: position.coords.longitude,
-          },
-          error: null,
-          isLoading: false,
-        });
-      },
-      (error) => {
-        let errorMessage: string;
+    const success = (position: GeolocationPosition) => {
+      setLocationData({
+        coordinates: {
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        },
+        error: null,
+        isLoading: false,
+      });
+    }
+    const error = (error: GeolocationPositionError) => {
+      let errorMessage: string;
 
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            errorMessage =
-              "Location permission denied. Please enable location access.";
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage = "Location information is unavailable.";
-            break;
-          case error.TIMEOUT:
-            errorMessage = "Location request timed out.";
-            break;
-          default:
-            errorMessage = "An unknown error occurred.";
-        }
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          errorMessage =
+            "Location permission denied. Please enable location access.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          errorMessage = "Location information is unavailable.";
+          break;
+        case error.TIMEOUT:
+          errorMessage = "Location request timed out.";
+          break;
+        default:
+          errorMessage = "An unknown error occurred.";
+      }
 
-        setLocationData({
-          coordinates: null,
-          error: errorMessage,
-          isLoading: false,
-        });
-      },
+      setLocationData({
+        coordinates: null,
+        error: errorMessage,
+        isLoading: false,
+      });
+    }
+
+    navigator.geolocation.getCurrentPosition(success, error,
       {
-        enableHighAccuracy: true,
+        enableHighAccuracy: false,
         timeout: 5000,
-        maximumAge: 0,
+        maximumAge: 3000,
       }
     );
   };
@@ -79,3 +81,5 @@ export function useGeolocation() {
     getLocation, // Expose method to manually refresh location
   };
 }
+
+
