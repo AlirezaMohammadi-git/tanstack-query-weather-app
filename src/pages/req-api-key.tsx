@@ -1,18 +1,42 @@
+import { Spinner } from "@/components/spinner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useAuthorizeApiKey } from "@/hooks/use-weather";
+import { useEffect, useState } from "react";
+import { toast } from "sonner"
 
 
 const RequestApiKey = () => {
 
-
-    const [input, setInput] = useState("")
-    const handleSubmit = (event: React.FormEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-        if (input.length > 0) {
-            //todo: check the api key => if it's valid, then save it on local storage, if not show error dialog(it's an commponent)
+    const [input, setInput] = useState("");
+    const invalidApiKeyToastOptions = {
+        title: "Invalid api key!",
+        description: `Use "openweathermap.org" to get api key.`,
+        action: {
+            label: "open website",
+            onClick: () => { window.open("https://openweathermap.org/") }
         }
+    }
+    const { mutate, data, isPending } = useAuthorizeApiKey(input)
+    useEffect(() => {
+        if (input.length > 8 && data && !isPending) {
+            window.localStorage.setItem("api-key", input)
+            window.location.reload();
+        } else if (!isPending) {
+            toast.error(
+                invalidApiKeyToastOptions.title, {
+                description: invalidApiKeyToastOptions.description,
+                action: invalidApiKeyToastOptions.action,
+                closeButton: true,
+            }
+            )
+        }
+    }, [isPending])
+
+    const handleAuthorization = (event: React.FormEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        mutate();
     }
 
 
@@ -27,9 +51,14 @@ const RequestApiKey = () => {
                 <CardContent className="flex justify-center items-center">
                     <form className="w-full flex gap-4">
                         <Input className="" id="api-key" type="text" placeholder="API key..." value={input} onChange={(e) => { setInput(e.target.value) }}></Input>
-                        <Button type="submit" className="" variant={"default"} onSubmit={(e) => { handleSubmit(e) }}>Start</Button>
+                        <Button type="button" className="" variant={"default"} onClick={(e) => { handleAuthorization(e) }}>Start</Button>
                     </form>
                 </CardContent>
+                <CardFooter>
+                    <div className="flex justify-center items-center w-full">
+                        {isPending && <Spinner size={"large"} />}
+                    </div>
+                </CardFooter>
             </Card>
 
         </div>

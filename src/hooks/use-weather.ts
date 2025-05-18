@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { weatherAPI } from "@/api/weather";
 import type { Coordinates } from "@/api/types";
 
@@ -7,6 +7,7 @@ export const WEATHER_KEYS = {
   forecast: (coords: Coordinates) => ["forecast", coords] as const,
   location: (coords: Coordinates) => ["location", coords] as const,
   search: (query: string) => ["location-search", query] as const,
+  auth: (apiKey: string) => ["authorization", apiKey] as const,
 } as const;
 
 export function useWeatherQuery(coordinates: Coordinates | null) {
@@ -41,4 +42,11 @@ export function useLocationSearch(query: string) {
     queryFn: () => weatherAPI.searchLocations(query),
     enabled: query.length >= 3,
   });
+}
+
+export function useAuthorizeApiKey(apiKey: string) {
+  return useMutation({
+    mutationKey: WEATHER_KEYS.auth(apiKey),
+    mutationFn: () => weatherAPI.requestAuthorazation(apiKey),
+  })
 }

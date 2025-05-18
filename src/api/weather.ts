@@ -21,8 +21,27 @@ class WeatherAPI {
     if (!response.ok) {
       throw new Error(`Weather API Error: ${response.statusText}`);
     }
-
     return response.json();
+  }
+
+  async requestAuthorazation(apiKey: string): Promise<boolean> {
+    const searchParams = new URLSearchParams({
+      appid: apiKey,
+      lat: "33.44",
+      lon: "-94.04",
+      units: "metric",
+    })
+    const url = `${API_CONFIG.BASE_URL}/weather?${searchParams.toString()}`;
+    try {
+      const result = await fetch(url);
+      if (result.ok) {
+        console.log(result.json())
+        return true
+      } else return false
+    } catch (error) {
+      console.error(`error : ${(error as Error).message}`)
+      return false
+    }
   }
 
   async getCurrentWeather({ lat, lon }: Coordinates): Promise<WeatherData> {

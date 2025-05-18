@@ -22,6 +22,7 @@ const queryClient = new QueryClient({
   },
 });
 
+// { isApiKeyValid : false , apiKey : xxxxx }
 const apiKey = window.localStorage.getItem("api-key")
 
 function App() {
@@ -31,14 +32,14 @@ function App() {
         <ThemeProvider defaultTheme="dark">
           <Layout>
             <Routes>
-              <Route path="/" element={apiKey ? <WeatherDashboard /> : <RequestApiKey />} />
+              <Route path="/" element={apiKey !== "" && apiKey ? <WeatherDashboard /> : <RequestApiKey />} />
               <Route path="/city/:cityName" element={<CityPage />} />
             </Routes>
           </Layout>
-          <Toaster richColors />
         </ThemeProvider>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
+      <Toaster richColors />
     </QueryClientProvider>
   );
 }
